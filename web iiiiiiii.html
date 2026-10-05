@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventaris Kampus | Sistem Manajemen</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+        }
+
+        :root {
+            --utama: #2563eb;
+            --gelap: #1e40af;
+            --sukses: #10b981;
+            --peringatan: #f59e0b;
+            --bahaya: #ef4444;
+            --latar: #eff6ff;
+            --putih: #ffffff;
+            --teks: #1e293b;
+            --teks-lembut: #64748b;
+            --abu-terang: #f1f5f9;
+            --bayangan: 0 10px 40px rgba(37, 99, 235, 0.12);
+            --bulat: 20px;
+            --bulat-kecil: 12px;
+        }
+
+        body {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            min-height: 100vh;
+            color: var(--teks);
+        }
+
+        .layar-login {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .kotak-login {
+            background: var(--putih);
+            padding: 3rem 2.5rem;
+            border-radius: var(--bulat);
+            box-shadow: var(--bayangan);
+            width: 100%;
+            max-width: 440px;
+            animation: naik 0.5s ease;
+        }
+
+        @keyframes naik {
+            from { opacity: 0; transform: translateY(25px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .kotak-login h2 {
+            text-align: center;
+            font-size: 1.7rem;
+            margin-bottom: 0.5rem;
+            color: var(--utama);
+        }
+
+        .kotak-login p {
+            text-align: center;
+            color: var(--teks-lembut);
+            margin-bottom: 2rem;
+        }
+
+        .form-grup {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-grup label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-grup input, .form-grup textarea {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--bulat-kecil);
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        .form-grup input:focus, .form-grup textarea:focus {
+            outline: none;
+            border-color: var(--utama);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .tombol {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: var(--bulat-kecil);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .tombol-utama {
+            background: linear-gradient(135deg, var(--utama), var(--gelap));
+            color: white;
+        }
+
+        .tombol-utama:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+        }
+
+        .tombol-hijau { background: var(--sukses); color: white; }
+        .tombol-kuning { background: var(--peringatan); color: white; }
+        .tombol-merah { background: var(--bahaya); color: white; }
+
+        .tombol-kecil {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            width: auto;
+            display: inline-block;
+            margin-right: 0.5rem;
+            margin-top: 0.8rem;
+        }
+
+        .tombol-keluar {
+            background: transparent;
+            border: 2px solid var(--bahaya);
+            color: var(--bahaya);
+            padding: 0.6rem 1.2rem;
+            border-radius: var(--bulat-kecil);
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            width: auto;
+        }
+
+        .tombol-keluar:hover {
+            background: var(--bahaya);
+            color: white;
+        }
+
+        .pesan-salah {
+            color: var(--bahaya);
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        .layar-utama { display: none; }
+
+        nav {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--utama);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .peran {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--utama);
+            padding: 0.4rem 0.9rem;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .wadah {
+            max-width: 1280px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .kartu {
+            background: var(--putih);
+            padding: 1.5rem;
+            border-radius: var(--bulat);
+            box-shadow: var(--bayangan);
+            margin-bottom: 2rem;
+        }
+
+        .kartu h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--utama);
+        }
+
+        select {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--bulat-kecil);
+            outline: none;
+        }
+
+        .kartu-ruang {
+            background: var(--putih);
+            border-radius: var(--bulat);
+            box-shadow: var(--bayangan);
+            overflow: hidden;
+            animation: muncul 0.5s ease;
+        }
+
+        @keyframes muncul {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .kepala-ruang {
+            background: linear-gradient(135deg, var(--utama), var(--gelap));
+            color: white;
+            padding: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .info-ruang h3 {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .kotak-qr {
+            background: white;
+            padding: 1.2rem;
+            border-radius: var(--bulat-kecil);
+            text-align: center;
+        }
+
+        .kotak-petugas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .petugas {
+            background: var(--abu-terang);
+            padding: 1rem;
+            border-radius: var(--bulat-kecil);
+            border-left: 4px solid var(--utama);
+        }
+
+        .petugas h4 {
+            font-size: 0.9rem;
+            color: var(--teks-lembut);
+            margin-bottom: 0.3rem;
+        }
+
+        .isi-data {
+            padding: 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+
+        th, td {
+            padding: 0.9rem;
+            text-align: left;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        th {
+            background: var(--abu-terang);
+            font-weight: 600;
+            color: var(--utama);
+        }
+
+        .status {
+            display: inline-block;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--sukses);
+            padding: 0.3rem 0.8rem;
+            border-radius: 30px;
+            font-weight: 600;
+        }
+
+        .status-rusak {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--bahaya);
+        }
+
+        .form-laporan {
+            background: var(--abu-terang);
+            padding: 1.5rem;
+            border-radius: var(--bulat-kecil);
+            margin-top: 1.5rem;
+        }
+
+        .laporan-item {
+            background: var(--putih);
+            padding: 1rem;
+            border-radius: var(--bulat-kecil);
+            margin-bottom: 0.8rem;
+            border-left: 4px solid var(--peringatan);
+        }
+
+        .sembunyi { display: none !important; }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--teks-lembut);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .kepala-ruang { flex-direction: column; text-align: center; }
+            table { display: block; overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="layar-login" id="halamanLogin">
+    <div class="kotak-login">
+        <h2>🔐 Masuk Sebagai Admin</h2>
+        <p>Hanya untuk pengelola — pengunjung langsung pilih ruangan di bawah</p>
+        
+        <div class="form-grup">
+            <label>Nama Pengguna</label>
+            <input type="text" id="namaPengguna" placeholder="Abram Sibagariang">
+        </div>
+        
+        <div class="form-grup">
+            <label>Kata Sandi</label>
+            <input type="password" id="kataSandi" placeholder="12345">
+        </div>
+        
+        <button class="tombol tombol-utama" onclick="cekLogin()">Masuk</button>
+        <button class="tombol" style="background:var(--abu-terang);color:var(--teks);margin-top:0.8rem;" onclick="langsungLihat()">Lihat Inventaris Saja</button>
+        <p class="pesan-salah" id="pesanSalah">Nama atau kata sandi salah!</p>
+    </div>
+</div>
+
+<div class="layar-utama" id="halamanUtama">
+    <nav>
+        <div class="logo">📋 Inventaris Kampus</div>
+        <div class="user-info">
+            <span class="peran" id="labelPeran">PENGUNJUNG</span>
+            <span id="namaAdmin">👤 Pengunjung</span>
+            <button class="tombol-keluar" onclick="keluar()">Keluar</button>
+        </div>
+    </nav>
+
+    <div class="wadah">
+        <div class="kartu">
+            <h2>Pilih Ruangan</h2>
+            <select id="daftarRuangan" onchange="tampilkanData()">
+                <option value="">-- Pilih Ruangan --</option>
+                <option value="ilmu-komputer">Ruang Ilmu Komputer</option>
+                <option value="keperawatan">Ruang Keperawatan</option>
+                <option value="gizi">Ruang Gizi</option>
+                <option value="teknologi">Ruang Teknologi Rekayasa</option>
+                <option value="ekonomi">Ruang Ekonomi & Bisnis</option>
+            </select>
+        </div>
+
+        <div id="tampilanData"></div>
+    </div>
+
+    <footer>© 2026 Sistem Inventaris Kampus</footer>
+</div>
+
+<script>
+    const akunAdmin = { nama: "Abram Sibagariang", sandi: "12345" };
+    const dataPetugas = { pemeriksa: "Abram Sibagariang", perbaikan: "Bang Dono & Bang Budi" };
+
+    const daftarRuangan = {
+        "ilmu-komputer": {
+            nama: "Ruang Ilmu Komputer", kode: "KMP-001",
+            barang: [
+                ["Komputer PC", "Unit", "30", "Baik"],
+                ["Meja Komputer", "Buah", "30", "Baik"],
+                ["Kursi", "Buah", "30", "Baik"],
+                ["Papan Tulis Putih", "Buah", "1", "Baik"],
+                ["Proyektor", "Unit", "1", "Baik"],
+                ["AC", "Unit", "2", "Baik"],
+                ["Rak Penyimpanan", "Buah", "2", "Baik"],
+                ["Perangkat Jaringan", "Set", "1", "Baik"]
+            ],
+            laporan: []
+        },
+        "keperawatan": {
+            nama: "Ruang Keperawatan", kode: "PRW-002",
+            barang: [
+                ["Tempat Tidur Peraga", "Buah", "6", "Baik"],
+                ["Meja Perawat", "Buah", "2", "Baik"],
+                ["Kursi", "Buah", "12", "Baik"],
+                ["Lemari Alat Medis", "Buah", "2", "Baik"],
+                ["Papan Tulis", "Buah", "1", "Baik"],
+                ["AC", "Unit", "1", "Baik"],
+                ["Timbangan Badan", "Buah", "2", "Baik"]
+            ],
+            laporan: []
+        },
+        "gizi": {
+            nama: "Ruang Gizi", kode: "GIZ-003",
+            barang: [
+                ["Kompor Gas", "Set", "4", "Baik"],
+                ["Meja Praktik", "Buah", "4", "Baik"],
+                ["Kursi", "Buah", "16", "Baik"],
+                ["Lemari Peralatan Dapur", "Buah", "2", "Baik"],
+                ["Papan Tulis", "Buah", "1", "Baik"],
+                ["AC", "Unit", "1", "Baik"]
+            ],
+            laporan: []
+        },
+        "teknologi": {
+            nama: "Ruang Teknologi Rekayasa", kode: "TEK-004",
+            barang: [
+                ["Meja Kerja Berat", "Buah", "8", "Baik"],
+                ["Kursi", "Buah", "24", "Baik"],
+                ["Peralatan Praktik Listrik", "Set", "8", "Baik"],
+                ["Papan Tulis", "Buah", "1", "Baik"],
+                ["AC", "Unit", "2", "Baik"],
+                ["Multitester", "Buah", "10", "Baik"]
+            ],
+            laporan: []
+        },
+        "ekonomi": {
+            nama: "Ruang Ekonomi & Bisnis", kode: "EKN-005",
+            barang: [
+                ["Meja Belajar", "Buah", "25", "Baik"],
+                ["Kursi", "Buah", "50", "Baik"],
+                ["Meja Dosen", "Buah", "1", "Baik"],
+                ["Papan Tulis", "Buah", "1", "Baik"],
+                ["AC", "Unit", "2", "Baik"],
+                ["Proyektor", "Unit", "1", "Baik"]
+            ],
+            laporan: []
+        }
+    };
+
+    let adalahAdmin = false;
+    let ruangAktif = null;
+
+    function cekLogin() {
+        let nama = document.getElementById("namaPengguna").value.trim();
+        let sandi = document.getElementById("kataSandi").value.trim();
+        if (nama === akunAdmin.nama && sandi === akunAdmin.sandi) {
+            adalahAdmin = true;
+            bukaHalamanUtama();
+            document.getElementById("namaAdmin").textContent = "👤 " + akunAdmin.nama;
+            document.getElementById("labelPeran").textContent = "ADMIN";
+        } else {
+            document.getElementById("pesanSalah").style.display = "block";
+        }
+    }
+
+    function langsungLihat() {
+        adalahAdmin = false;
+        bukaHalamanUtama();
+        document.getElementById("namaAdmin").textContent = "👤 Pengunjung";
+        document.getElementById("labelPeran").textContent = "PENGUNJUNG";
+    }
+
+    function bukaHalamanUtama() {
+        document.getElementById("halamanLogin").style.display = "none";
+        document.getElementById("halamanUtama").style.display = "block";
+        cekDariQR();
+    }
+
+    function keluar() {
+        adalahAdmin = false;
+        ruangAktif = null;
+        document.getElementById("halamanUtama").style.display = "none";
+        document.getElementById("halamanLogin").style.display = "flex";
+        document.getElementById("namaPengguna").value = "";
+        document.getElementById("kataSandi").value = "";
+        document.getElementById("pesanSalah").style.display = "none";
+        document.getElementById("tampilanData").innerHTML = "";
+        document.getElementById("daftarRuangan").value = "";
+    }
+
+    function cekDariQR() {
+        let params = new URLSearchParams(window.location.search);
+        let kodeRuang = params.get('ruang');
+        if (kodeRuang && daftarRuangan[kodeRuang]) {
+            document.getElementById("daftarRuangan").value = kodeRuang;
+            tampilkanData();
+        }
+    }
+
+    function tambahLaporan() {
+        if (!ruangAktif) return;
+        let namaPelapor = document.getElementById("namaPelapor").value.trim();
+        let kelasPelapor = document.getElementById("kelasPelapor").value.trim();
+        let namaBarang = document.getElementById("namaBarangRusak").value.trim();
+        let keterangan = document.getElementById("keteranganRusak").value.trim();
+        
+        if (!namaPelapor || !kelasPelapor || !namaBarang || !keterangan) {
+            alert("Lengkapi semua data laporan!");
+            return;
+        }
+
+        daftarRuangan[ruangAktif].laporan.push({
+            pelapor: namaPelapor, kelas: kelasPelapor,
+            ruangan: daftarRuangan[ruangAktif].nama,
+            barang: namaBarang, keterangan: keterangan,
+            tanggal: new Date().toLocaleString('id-ID')
+        });
+
+        document.getElementById("namaPelapor").value = "";
+        document.getElementById("kelasPelapor").value = "";
+        document.getElementById("namaBarangRusak").value = "";
+        document.getElementById("keteranganRusak").value = "";
+        
+        tampilkanData();
+        alert("✅ Laporan berhasil dikirim!");
+    }
+
+    function perbaikanSelesai(index) {
+        if (!confirm("Tandai sudah diperbaiki?")) return;
+        daftarRuangan[ruangAktif].laporan.splice(index, 1);
+        tampilkanData();
+    }
+
+    function ubahKondisi(kodeRuang, indeks) {
+        let kondisiSekarang = daftarRuangan[kodeRuang].barang[indeks][3];
+        daftarRuangan[kodeRuang].barang[indeks][3] = kondisiSekarang === "Baik" ? "Rusak" : "Baik";
+        tampilkanData();
+    }
+
+    function tampilkanData() {
+        let pilih = document.getElementById("daftarRuangan").value;
+        let wadah = document.getElementById("tampilanData");
+        if (!pilih) { wadah.innerHTML = ""; ruangAktif = null; return; }
+        ruangAktif = pilih;
+        let ruang = daftarRuangan[pilih];
+
+        wadah.innerHTML = `
+            <div class="kartu-ruang">
+                <div class="kepala-ruang">
+                    <div class="info-ruang">
+                        <h3>${ruang.nama}</h3>
+                        <p>Kode Ruangan: <strong>${ruang.kode}</strong></p>
+                    </div>
+                    <div class="kotak-qr">
+                        <small style="color:#333;">📷 Scan untuk Bagikan</small>
+                        <canvas id="qr-${ruang.kode}"></canvas>
+                        <div style="font-size:0.7rem;color:#666;">Bisa dicetak & ditempel di pintu</div>
+                    </div>
+                </div>
+
+                <div class="isi-data">
+                    <div class="kotak-petugas">
+                        <div class="petugas">
+                            <h4>👤 Pemeriksa Barang</h4>
+                            <p>${dataPetugas.pemeriksa}</p>
+                        </div>
+                        <div class="petugas">
+                            <h4>🔧 Petugas Perbaikan</h4>
+                            <p>${dataPetugas.perbaikan}</p>
+                        </div>
+                    </div>
+
+                    <h3>📦 Daftar Barang</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No</th><th>Nama Barang</th><th>Satuan</th><th>Jumlah</th><th>Kondisi</th>
+                                ${adalahAdmin ? '<th>Aksi</th>' : ''}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${ruang.barang.map((b, i) => `
+                                <tr>
+                                    <td>${i+1}</td><td>${b[0]}</td><td>${b[1]}</td><td><strong>${b[2]}</strong></td>
+                                    <td><span class="status ${b[3]==='Rusak'?'status-rusak':''}">${b[3]}</span></td>
+                                    ${adalahAdmin ? `<td><button class="tombol tombol-kecil tombol-kuning" onclick="ubahKondisi('${pilih}',${i})">Ubah</button></td>` : ''}
+                                </tr>
+                            `).join("")}
+                        </tbody>
+                    </table>
+
+                    <h3>⚠️ Laporan Kerusakan</h3>
+                    <div class="form-laporan">
+                        <h4>Laporkan Kerusakan</h4>
+                        <div class="form-grup"><label>Nama Pelapor</label><input type="text" id="namaPelapor" placeholder="Nama Anda"></div>
+                        <div class="form-grup"><label>Kelas / Tingkat</label><input type="text" id="kelasPelapor" placeholder="Contoh: Ilmu Komputer 2"></div>
+                        <div class="form-grup"><label>Nama Barang Rusak</label><input type="text" id="namaBarangRusak" placeholder="Contoh: Kursi nomor 3"></div>
+                        <div class="form-grup"><label>Keterangan</label><textarea id="keteranganRusak" rows="2" placeholder="Jelaskan kerusakannya..."></textarea></div>
+                        <button class="tombol tombol-kecil tombol-merah" onclick="tambahLaporan()">Kirim Laporan</button>
+                    </div>
+
+                    <div style="margin-top:1.5rem;">
+                        ${ruang.laporan.length === 0 ? '<p style="color:var(--teks-lembut);">✅ Belum ada laporan kerusakan.</p>' :
+                            ruang.laporan.map((lap, i) => `
+                                <div class="laporan-item">
+                                    <p><strong>Barang:</strong> ${lap.barang}</p>
+                                    <p><strong>Keterangan:</strong> ${lap.keterangan}</p>
+                                    <p style="font-size:0.85rem;color:var(--teks-lembut);">
+                                        👤 Pelapor: ${lap.pelapor} | 📚 ${lap.kelas} | 📍 ${lap.ruangan}<br>🕐 ${lap.tanggal}
+                                    </p>
+                                    ${adalahAdmin ? `<button class="tombol tombol-kecil tombol-hijau" onclick="perbaikanSelesai(${i})">Sudah Diperbaiki</button>` : ''}
+                                </div>
+                            `).join("")
+                        }
+                    </div>
+                </div>
+            </div>
+        `;
+
+        setTimeout(() => {
+            let linkSaatIni = window.location.origin + window.location.pathname + "?ruang=" + pilih;
+            QRCode.toCanvas(document.getElementById(`qr-${ruang.kode}`), linkSaatIni, {
+                width: 140, margin: 2, color: { dark: '#1e293b', light: '#ffffff' }
+            }, err => { if (err) console.error(err); });
+        }, 150);
+    }
+</script>
+</body>
+</html>
